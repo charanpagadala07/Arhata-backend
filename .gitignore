@@ -1,0 +1,38 @@
+# Java / Maven build output
+**/target/
+**/build/
+**/out/
+
+# Maven wrapper keeps these tracked
+!**/mvnw
+!**/mvnw.cmd
+!**/.mvn/
+
+# Keep the project config files, including pom.xml
+!**/pom.xml
+
+# IDE / editor files
+**/.idea/
+**/.vscode/
+**/*.iml
+**/*.ipr
+**/*.iws
+**/.classpath
+**/.project
+**/.settings/
+**/.factorypath
+**/.springBeans
+**/.sts4-cache
+
+# OS files
+**/.DS_Store
+**/Thumbs.db
+**/*.log
+
+# Optional: common local config
+**/.env
+**/uploads/
+
+
+**/src/main/resources/application.yaml
+**/src/main/resources/application.yml
