@@ -6,7 +6,7 @@ ShortlistAI is designed to reduce the manual effort involved in reviewing hundre
 
 ---
 
-## 🚀 What Does This Project Do?
+## What Does This Project Do?
 
 ShortlistAI allows a recruiter to:
 
@@ -27,7 +27,7 @@ The system is intended as an **AI-assisted recruitment tool**, not as a replacem
 
 ---
 
-## 🧠 How It Works
+##  How It Works
 
 ```text
 Recruiter
@@ -62,7 +62,7 @@ Frontend
 
 ---
 
-## 🤖 Gemini AI Integration
+## Gemini AI Integration
 
 The Screening Service sends the relevant applicant information together with:
 
@@ -101,7 +101,7 @@ The application processes the AI response and stores the screening job and resul
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 The backend follows a microservices architecture:
 
@@ -142,7 +142,7 @@ The backend follows a microservices architecture:
 
 ---
 
-## 🔐 Authentication
+##  Authentication
 
 Authentication is handled using JWT.
 
@@ -277,7 +277,7 @@ This returns the candidates selected according to the requested shortlist percen
 
 ---
 
-## 🔮 Future Improvements
+## Future Improvements
 
 Possible future enhancements include:
 
@@ -292,7 +292,7 @@ Possible future enhancements include:
 
 ---
 
-## 🎯 Project Goal
+## Project Goal
 
 ShortlistAI demonstrates how Generative AI can be integrated into a practical microservices-based application to solve a real-world recruitment problem.
 
