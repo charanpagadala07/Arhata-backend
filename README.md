@@ -1,8 +1,8 @@
-# ShortlistAI
+# Arhata-AI
 
 An AI-powered candidate screening and shortlisting platform that helps recruiters analyze large applicant pools against a Job Description (JD) and custom screening criteria.
 
-ShortlistAI is designed to reduce the manual effort involved in reviewing hundreds or thousands of applications and help recruiters quickly identify the most relevant candidates.
+Arhata-AI is designed to reduce the manual effort involved in reviewing hundreds or thousands of applications and help recruiters quickly identify the most relevant candidates.
 
 ---
 
