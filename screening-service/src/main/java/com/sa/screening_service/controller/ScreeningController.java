@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/api/screening")
 public class ScreeningController {
@@ -40,7 +42,7 @@ public class ScreeningController {
             String jobDescription,
 
             @RequestParam("screeningCriteria")
-            String screeningCriteria) {
+            String screeningCriteria) throws IOException {
 
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException(
@@ -48,26 +50,19 @@ public class ScreeningController {
             );
         }
 
-        try {
-
-            ScreeningJob result =
-                    screeningService.analyze(
-                            file.getOriginalFilename(),
-                            file.getBytes(),
-                            jobDescription,
-                            screeningCriteria
-                    );
-
-            return ResponseEntity.ok(result);
-
-        } catch (Exception exception) {
-
-            throw new IllegalArgumentException(
-                    "Screening failed: "
-                            + exception.getMessage(),
-                    exception
-            );
+        String fileName = file.getOriginalFilename();
+        if (fileName == null || !fileName.toLowerCase().endsWith(".xlsx")) {
+            throw new IllegalArgumentException("Upload an .xlsx Excel workbook");
         }
+
+        ScreeningJob result =
+                screeningService.analyze(
+                        fileName,
+                        file.getBytes(),
+                        jobDescription,
+                        screeningCriteria
+                );
+        return ResponseEntity.ok(result);
     }
 
 

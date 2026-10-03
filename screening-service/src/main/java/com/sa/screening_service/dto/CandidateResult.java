@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CandidateResult {
 
+    private Integer sourceRow;
+
     private String name;
 
     private String email;

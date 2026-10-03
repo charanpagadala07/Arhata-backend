@@ -19,21 +19,26 @@ import java.util.List;
 @Service
 public class ScreeningService {
 
+    private static final int GEMINI_BATCH_SIZE = 25;
+
     private final ScreeningJobRepository screeningJobRepository;
     private final ScreeningResultRepository screeningResultRepository;
     private final GeminiService geminiService;
     private final ScreeningResultMapper screeningResultMapper;
+    private final ExcelService excelService;
 
     public ScreeningService(
             ScreeningJobRepository screeningJobRepository,
             ScreeningResultRepository screeningResultRepository,
             GeminiService geminiService,
-            ScreeningResultMapper screeningResultMapper) {
+            ScreeningResultMapper screeningResultMapper,
+            ExcelService excelService) {
 
         this.screeningJobRepository = screeningJobRepository;
         this.screeningResultRepository = screeningResultRepository;
         this.geminiService = geminiService;
         this.screeningResultMapper = screeningResultMapper;
+        this.excelService = excelService;
     }
 
     /*
@@ -43,7 +48,6 @@ public class ScreeningService {
      *
      * It delegates the screening operation to this service.
      */
-    @Transactional
     public ScreeningJob analyze(
             String fileName,
             byte[] excelBytes,
@@ -57,12 +61,9 @@ public class ScreeningService {
                 screeningCriteria
         );
 
-        /*
-         * Create history record immediately.
-         *
-         * This allows us to track the screening attempt
-         * even if Gemini eventually fails.
-         */
+        List<String> candidateBatches =
+                excelService.readCandidateBatches(excelBytes, GEMINI_BATCH_SIZE);
+
         ScreeningJob job = ScreeningJob.builder()
                 .fileName(fileName)
                 .jobDescription(jobDescription)
@@ -75,15 +76,9 @@ public class ScreeningService {
 
         try {
 
-            /*
-             * ORIGINAL EXCEL → GEMINI
-             *
-             * No local candidate extraction.
-             */
             ScreeningResponse aiResponse =
                     geminiService.screenCandidates(
-                            excelBytes,
-                            fileName,
+                            candidateBatches,
                             jobDescription,
                             screeningCriteria
                     );
@@ -102,9 +97,6 @@ public class ScreeningService {
                             aiResponse.getCandidates()
                     );
 
-            /*
-             * Defensive sorting.
-             */
             candidates.sort(
                     Comparator.comparing(
                             CandidateResult::getScore,
@@ -135,24 +127,17 @@ public class ScreeningService {
                 rank++;
             }
 
-            /*
-             * Persist all Gemini results.
-             */
             screeningResultRepository.saveAll(results);
 
-            /*
-             * Update history.
-             */
             job.setTotalCandidates(results.size());
             job.setStatus(ScreeningStatus.COMPLETED);
             job.setCompletedAt(LocalDateTime.now());
 
             return screeningJobRepository.save(job);
 
-        } catch (Exception exception) {
+        } catch (RuntimeException exception) {
 
             job.setStatus(ScreeningStatus.FAILED);
-
             screeningJobRepository.save(job);
 
             throw exception;

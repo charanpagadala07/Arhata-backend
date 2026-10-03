@@ -1,7 +1,10 @@
 package com.sa.screening_service.exception;
 
 import com.sa.screening_service.dto.ErrorResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -12,6 +15,9 @@ import java.time.LocalDateTime;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(
@@ -44,13 +50,30 @@ public class GlobalExceptionHandler {
 
         ErrorResponse response = new ErrorResponse(
                 LocalDateTime.now(),
-                HttpStatus.PAYLOAD_TOO_LARGE.value(),
+                413,
                 "File Too Large",
                 "Uploaded file exceeds the maximum allowed size."
         );
 
         return ResponseEntity
-                .status(HttpStatus.PAYLOAD_TOO_LARGE)
+                .status(HttpStatusCode.valueOf(413))
+                .body(response);
+    }
+
+    @ExceptionHandler(GeminiProcessingException.class)
+    public ResponseEntity<ErrorResponse> handleGeminiProcessingException(
+            GeminiProcessingException exception) {
+
+        logger.error("Gemini candidate screening failed", exception);
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.BAD_GATEWAY.value(),
+                "Gemini Screening Failed",
+                exception.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_GATEWAY)
                 .body(response);
     }
 
@@ -74,7 +97,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleGenericException(
             Exception exception) {
 
-        exception.printStackTrace();
+        logger.error("Unhandled screening service error", exception);
 
         ErrorResponse response = new ErrorResponse(
                 LocalDateTime.now(),

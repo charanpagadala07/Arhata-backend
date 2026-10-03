@@ -5,6 +5,7 @@ import com.sa.auth_service.repository.UserRepository;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -15,14 +16,18 @@ import java.io.IOException;
 @Component
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
+    private final String frontendUrl;
     private final UserRepository userRepository;
     private final JwtService jwtService;
 
     public OAuth2SuccessHandler(
             UserRepository userRepository,
-            JwtService jwtService) {
+            JwtService jwtService,
+            @Value("${shortlistai.frontend-url:http://localhost:5173}")
+            String frontendUrl) {
         this.userRepository = userRepository;
         this.jwtService = jwtService;
+        this.frontendUrl = frontendUrl;
     }
 
     @Override
@@ -53,6 +58,10 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         String token = jwtService.generateToken(user.getEmail());
 
-        response.getWriter().write(token);
+        response.sendRedirect(
+                frontendUrl.replaceAll("/+$", "")
+                        + "/auth/callback#token="
+                        + token
+        );
     }
 }

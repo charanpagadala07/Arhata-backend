@@ -1,5 +1,6 @@
 package com.sa.auth_service.security;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -12,6 +13,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    @Value("${shortlistai.frontend-url:http://localhost:5173}")
+    private String frontendUrl;
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
@@ -40,6 +44,12 @@ public class SecurityConfig {
                 )
                 .oauth2Login(oauth -> oauth
                         .successHandler(oAuth2SuccessHandler)
+                        .failureHandler((request, response, exception) ->
+                                response.sendRedirect(
+                                        frontendUrl.replaceAll("/+$", "")
+                                                + "/login?oauthError"
+                                )
+                        )
                 );
 
         return http.build();
